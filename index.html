@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valentine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at top, #ffe6f0, #f7c6dc);
+      overflow: hidden;
+    }
+
+    .container {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .hidden { display: none; }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff, #fff6fa);
+      padding: 50px 40px;
+      border-radius: 28px;
+      box-shadow:
+        0 30px 60px rgba(255, 120, 170, 0.25),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+      position: relative;
+    }
+
+    .icon {
+      font-size: 60px;
+      margin-bottom: 15px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #d63384;
+    }
+
+    .buttons {
+      position: relative;
+      height: 70px;
+    }
+
+    button {
+      border: none;
+      width: 120px;
+      height: 46px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      position: absolute;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #ff6fae, #ff3d8b);
+      color: #fff;
+      left: 0;
+      box-shadow: 0 12px 25px rgba(255, 61, 139, 0.45);
+    }
+
+    #yesBtn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 16px 30px rgba(255, 61, 139, 0.6);
+    }
+
+    #noBtn {
+      background: #e0e0e0;
+      color: #555;
+      right: 0;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+      transform: none !important;
+    }
+
+    .card img {
+      width: 100%;
+      max-width: 240px;
+      margin-top: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    #confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="container" id="page1">
+    <div class="card">
+      <div class="icon">💘</div>
+      <h1>Tanya, will you be my Valentine?</h1>
+      <div class="buttons">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hidden" id="page2">
+    <div class="card">
+      <div class="icon">💖</div>
+      <h1>Tanya, will you be my Valentine? YAY! 🎉</h1>
+      <img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Celebration">
+    </div>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+
+    function moveNoButton() {
+      const card = noBtn.closest('.card');
+      const cardRect = card.getBoundingClientRect();
+
+      const padding = 16;
+      const maxX = cardRect.width - noBtn.offsetWidth - padding;
+      const maxY = cardRect.height - noBtn.offsetHeight - padding - 50;
+
+      const x = Math.random() * maxX + padding / 2;
+      const y = Math.random() * maxY + padding / 2 + 50;
+
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    }
+
+    noBtn.addEventListener('mouseenter', moveNoButton);
+    noBtn.addEventListener('mousemove', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    yesBtn.addEventListener('click', () => {
+      page1.classList.add('hidden');
+      page2.classList.remove('hidden');
+      startConfetti();
+    });
+
+    function startConfetti() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const pieces = Array.from({ length: 180 }).map(() => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 5 + 2,
+        color: `hsl(${Math.random() * 360},100%,70%)`
+      }));
+
+      function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.y += p.d;
+          if (p.y > canvas.height) p.y = -10;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        });
+        requestAnimationFrame(update);
+      }
+
+      update();
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
